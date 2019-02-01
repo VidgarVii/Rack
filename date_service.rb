@@ -12,23 +12,25 @@ class DateService
 
   def initialize(format)
     format_params(format)
-    check_format
-    @response = 'Vidgar Rulit!'
+    @status = 200
+    @miss_format.empty? ? time : error
   end
 
   private
 
   def format_params(params)
-    @params = params.split(',')
+    params = params.split(',')
+    @formats, @miss_format = params.partition { |param| FORMATS[param] }
+  end
+
+  def error
+    @status = 400
+    @response = "Unknown time format #{@miss_format}"
   end
 
   def time
-    return Time.now.to_s if @params.empty?
-
-    Time.now.strftime(@formats).to_s
-  end
-
-  def check_format
-    @formats, @miss_format = @params.partition { |param| FORMATS[param] }
+    format = ''
+    @formats.each { |data| format += FORMATS[data] }
+    @response = Time.now.strftime(format).to_s
   end
 end
