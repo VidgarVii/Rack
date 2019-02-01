@@ -1,5 +1,3 @@
-require_relative 'middleware/date'
-require_relative 'app'
+require_relative 'adapter'
 
-use DateRequest
-run App.new
+run Adapter.new
