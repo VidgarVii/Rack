@@ -1,18 +1,18 @@
 class DateService
-  attr_reader :status, :response
+  attr_reader :response
 
   FORMATS = {
-    'year' => '%Y-',
-    'month' => '%m-',
-    'day' => '%d-',
-    'hour' => '%H-',
-    'minute' => '%M-',
+    'year' => '%Y',
+    'month' => '%m',
+    'day' => '%d',
+    'hour' => '%H',
+    'minute' => '%M',
     'second' => '%S'
   }.freeze
 
   def initialize(format)
     format_params(format)
-    @status = 200
+
     @miss_format.empty? ? time : error
   end
 
@@ -24,13 +24,14 @@ class DateService
   end
 
   def error
-    @status = 400
-    @response = "Unknown time format #{@miss_format}"
+    @response = raise DateServiceError, "Unknown time format #{@miss_format}"
   end
 
   def time
-    format = ''
-    @formats.each { |data| format += FORMATS[data] }
-    @response = Time.now.strftime(format).to_s
+    format = @formats.map { |data| FORMATS[data] }.join('-')
+    @response = Time.now.strftime(format)
   end
+end
+
+class DateServiceError < StandardError
 end

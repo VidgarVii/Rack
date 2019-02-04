@@ -2,33 +2,35 @@ require_relative 'date_service'
 require 'rack'
 
 class Adapter
+  attr_accessor :status, :body
+
   def call(env)
-    set_request(env)
-    routes
-    [status, headers, @body]
+    route(Rack::Request.new(env))
+
+    [status, headers, body]
   end
 
   private
 
-  def set_request(env)
-    @request = Rack::Request.new(env)
-  end
-
-  def routes
-    if @request.get? && @request.path == '/time'
-      date_service = DateService.new(@request.params['format'])
-      @body = [date_service.response]
-      status(date_service.status)
+  def route(request)
+    if request.get? && request.path == '/time' && request.params['format']
+      date_service(request.params['format'])
+    else
+      @body = ''
+      @status = 404
     end
-  rescue
-    status
   end
 
-  def status(number = 404)
-    @status = number
+  def date_service(format)
+    date_service = DateService.new(format)
+    @body = [date_service.response]
+    @status = 200
+  rescue DateServiceError => error
+    @body = [error.to_s]
+    @status = 400
   end
 
   def headers
-    {'Content-Type' => 'text/plain'}
+    { 'Content-Type' => 'text/plain' }
   end
 end
