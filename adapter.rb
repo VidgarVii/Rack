@@ -2,7 +2,7 @@ require_relative 'date_service'
 require 'rack'
 
 class Adapter
-  attr_accessor :status, :body
+  attr_reader :status, :body
 
   def call(env)
     route(Rack::Request.new(env))
