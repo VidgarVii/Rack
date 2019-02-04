@@ -1,3 +1,3 @@
-require_relative 'adapter'
+require_relative 'app'
 
-run Adapter.new
+run App.new

@@ -1,5 +1,4 @@
 class DateService
-  attr_reader :response
 
   FORMATS = {
     'year' => '%Y',
@@ -10,28 +9,27 @@ class DateService
     'second' => '%S'
   }.freeze
 
-  def initialize(format)
-    format_params(format)
+  def initialize(formats)
+    format_params(formats)
+  end
 
-    @miss_format.empty? ? time : error
+  def formatted_time
+    formats = @formats.map { |data| FORMATS[data] }.join('-')
+    Time.now.strftime(formats)
+  end
+
+  def valid?
+    @miss_format.empty?
+  end
+
+  def invalid_formats
+    "Unknown time format #{@miss_format}"
   end
 
   private
 
   def format_params(params)
     params = params.split(',')
-    @formats, @miss_format = params.partition { |param| FORMATS[param] }
+    @formats, @miss_format = params.partition { |param| FORMATS.key?(param) }
   end
-
-  def error
-    @response = raise DateServiceError, "Unknown time format #{@miss_format}"
-  end
-
-  def time
-    format = @formats.map { |data| FORMATS[data] }.join('-')
-    @response = Time.now.strftime(format)
-  end
-end
-
-class DateServiceError < StandardError
 end
